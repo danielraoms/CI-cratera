@@ -181,7 +181,7 @@ call cpu_time(start)
 	toleranciarot = (N - paredes)*m(1)*0.4d0*(1.0e-1)/2.0d0
 
 	!definindo módulos de Young, razão de Poisson e Shear modulus
-	E_young(:) = 7.0e9
+	E_young(:) = 7.0e8
 	v_poisson(:) = 0.2
 	G_shear(:) = E_young(:)/(2.0d0*(1.0d0 + v_poisson(:)))
 
@@ -622,6 +622,115 @@ DO cont = floor(t/dt), 10000000
 	!gera arquivo .eps com configuração do sistema na iteração atual
 	!calcula as energias da configuração do sistema na iteração atual
 	if (mod(cont,contmodeps) .eq. 0) then
+
+		sum_vcell(:,:,:) = 0.0d0
+		cont_cell(:,:) = 0
+		highest_of_cell(:,:) = 0.0d0
+		sum_cell = 0
+
+		!calculando a soma das velocidades das partículas para cada célula do sistema
+		!itere todas as células do sistema
+		do b = 1, maxIxcell
+		do a = 1, maxIycell
+
+			!tome a partícula head da célula teste (a,b) como a partícula teste
+			p = tdl(a,b)
+
+			do while (p .gt. 0)
+
+				if (flag_dig(p) .eq. 1) then
+
+					sum_vcell(1,a,b) = sum_vcell(1,a,b) + vxold(p)
+					sum_vcell(2,a,b) = sum_vcell(2,a,b) + vyold(p)
+
+					!calculando a altura máxima para cada célula
+					if (xold(p) .gt. highest_of_cell(a,b)) then
+						highest_of_cell(a,b) = xold(p)
+					else
+						highest_of_cell(a,b) = highest_of_cell(a,b)
+					end if
+
+					cont_cell(a,b) = cont_cell(a,b) + 1
+
+					p = links(p)
+				else 
+					sum_vcell(1,a,b) = sum_vcell(1,a,b)
+					sum_vcell(2,a,b) = sum_vcell(2,a,b)
+					p = links(p)
+					continue
+				end if
+			end do	
+		end do
+		end do
+
+		mean_velocity_cell(:,:,:) = 0.0d0
+
+		!calculando a velocidade média de cada célula
+		do b = 1, maxIxcell
+		do a = 1, maxIycell
+			sum_cell = 0
+			sum_cell = sum_cell +&
+			           cont_cell(a+1,b+1)  + cont_cell(a+1,b)   + cont_cell(a+1,b)&
+				  +cont_cell(a,b-1)    + cont_cell(a,b)     + cont_cell(a,b+1)&
+				  +cont_cell(a-1,b-1)  + cont_cell(a-1,b)   + cont_cell(a-1,b+1)
+
+			if (sum_cell .ne. 0) then
+
+				mean_velocity_cell(1,a,b) = (sum_vcell(1,a+1,b-1) + sum_vcell(1,a+1,b) + sum_vcell(1,a+1,b+1)&
+							   +sum_vcell(1,a,b-1)   + sum_vcell(1,a,b)   + sum_vcell(1,a,b+1)&
+							   +sum_vcell(1,a-1,b-1) + sum_vcell(1,a-1,b) + sum_vcell(1,a-1,b-1))/sum_cell
+
+				mean_velocity_cell(2,a,b) = (sum_vcell(2,a+1,b-1) + sum_vcell(2,a+1,b) + sum_vcell(2,a+1,b+1)&
+							   +sum_vcell(2,a,b-1)   + sum_vcell(2,a,b)   + sum_vcell(2,a,b+1)&
+							   +sum_vcell(2,a-1,b-1) + sum_vcell(2,a-1,b) + sum_vcell(2,a-1,b-1))/sum_cell
+
+			else
+				mean_velocity_cell(1,a,b) = 0.0d0
+				mean_velocity_cell(2,a,b) = 0.0d0
+			end if
+
+			position_cell(1,a,b) = 2.0d0*raiomed*b
+			position_cell(2,a,b) = 2.0d0*raiomed*a
+		end do
+		end do
+
+
+		!calculando velocidades médias da posição x para gráfico espaço-temporal
+		do b = 1, maxIxcell
+			space_time_vel(1,b) = sum(mean_velocity_cell(1,:,b))/(2.0d0*raiomax*39)
+			space_time_vel(2,b) = sum(mean_velocity_cell(2,:,b))/(2.0d0*raiomax*39)
+
+			position_cell_st(b) = b*2.0d0*raiomax
+		end do
+
+		!calculando altura máxima para cada coluna (para cada posição x)
+		do b = 1, maxIxcell
+			highest_height(b) = maxval(highest_of_cell(:,b))
+		end do
+
+		!arquivo para campo de velocidades
+		write(campo_continuo, '("campo_continuo-", I4, ".dat")') cont/contmodeps
+	
+		!abre arquivo para campo de velocidades
+		open(unit=337,file=campo_continuo,status='unknown')
+
+		!escreve dados do campo de velocidades no instante atual
+		do b = 1, maxIxcell
+		do a = 1, maxIycell
+			write(337,*) cont*dt, a, b, position_cell(1,a,b), position_cell(2,a,b), mean_velocity_cell(1,a,b), mean_velocity_cell(2,a,b)
+			write(*,*) "fake writing velocity field"
+		end do
+		end do
+
+		!abre arquivo para diagramas espaço-temporais
+		open(unit=437, file=espaco_temporal,status='unknown')
+
+		!escreve dados para diagramas espaço-temporais 
+		do b = 1, maxIxcell
+			write(437,*) cont*dt, position_cell_st(b), space_time_vel(1,b), space_time_vel(2,b), highest_height(b)
+		end do
+			write(437,*) ''
+
 
 		!chama subroutine para gerar arquivo .eps com configuração do sistema 
 		call salva_eps_cratera(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total,flag_dig)
