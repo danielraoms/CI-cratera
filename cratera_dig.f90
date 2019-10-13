@@ -26,13 +26,13 @@ subroutine cavar_cratera(N_resto, flag_dummy)
 
 
 	!identificador para a coluna de células que define a fronteira esquerda do buraco
-	left_hole = 30 !um terço do comprimento da parede inferior das células à esquerda não serão cavadas
+	left_hole = 14 !um terço do comprimento da parede inferior das células à esquerda não serão cavadas
 
 	!identificador para a coluna de células que define a fronteira direita do buraco
-	right_hole = 99 !um terço do comprimento da parede inferior das células à direita não serão cavadas
+	right_hole = 30 !um terço do comprimento da parede inferior das células à direita não serão cavadas
 
 	!identificador para a linha de células que define a fronteira inferior do buraco
-	bottom_hole = 1 !a altura de aproximadamente 20 partículas da fronteira, partindo da parede inferior, não serão cavadas
+	bottom_hole = 2 !a altura de aproximadamente 20 partículas da fronteira, partindo da parede inferior, não serão cavadas
 
 	!identificador para a linha de células que define a fronteira superior do buraco
 	upper_hole = 50 !acima da altura de 45 partículas, partindo da parede inferior, não há partículas

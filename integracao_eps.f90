@@ -210,6 +210,7 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
   !desenhe o grid
     !grids horizontais
     l = 1
+    k = (bw + 4) + 5*(l-1)
     do while (k .lt. (bw + lw))
     	 k = (bw + 4) + 5*(l-1) !começa em bw+4, incrementa a cada 5 partículas 
     	 write(210,108) int(scale*part_pos_x(1)), int(scale*part_pos_y(k))
@@ -223,9 +224,9 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
 	 l = l + 1
     end do
 
-
     !grids verticais
     l = 1
+	k = 5 + 5*(l-1)
     do while (k .lt. bw)
     	 k = 5 + 5*(l-1) !começa em 5, incrementa a cada 5 partículas 
     	 write(210,108) int (scale*part_pos_x(k)), int(scale*part_pos_y(1))
@@ -238,8 +239,53 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
 	 l = l + 1
     end do
 
+ !escreva o "0" no eixo x
+    write(210,*) "/Arial findfont"
+    write(210,*) "16 scalefont"
+    write(210,*) "setfont"
+    write(210,110) 0.0, 0.0, 0.0
+    write(210,*) ""
+    write(210,108) int (scale*(part_pos_x(bw/2) - 0.01)), int(scale*(part_pos_y(bw/2) - 0.08))
+    write(210,*) "(0) show"
+
+    write(210,*) 'gsave'
+    write(210,*) 'stroke'
+ 
+ !escreva o "-1 no eixo x"
+    write(210,*) "/Arial findfont"
+    write(210,*) "16 scalefont"
+    write(210,*) "setfont"
+    write(210,110) 0.0, 0.0, 0.0
+    write(210,*) ""
+    write(210,108) int (scale*(part_pos_x(1) - 0.01)), int(scale*(part_pos_y(1) - 0.08))
+    write(210,*) "(-1) show"
+
+    write(210,*) 'gsave'
     write(210,*) 'stroke'
 
+ !escreva o "1"" no eixo x
+    write(210,*) "/Arial findfont"
+    write(210,*) "16 scalefont"
+    write(210,*) "setfont"
+    write(210,110) 0.0, 0.0, 0.0
+    write(210,*) ""
+    write(210,108) int (scale*(part_pos_x(bw) - 0.01)), int(scale*(part_pos_y(bw) - 0.08))
+    write(210,*) "(1) show"
+
+    write(210,*) 'gsave'
+    write(210,*) 'stroke'
+
+  !escreva o "1" no eixo y
+    write(210,*) "/Arial findfont"
+    write(210,*) "16 scalefont"
+    write(210,*) "setfont"
+    write(210,110) 0.0, 0.0, 0.0
+    write(210,*) ""
+    write(210,108) int (scale*(part_pos_x(1) - 0.08)), int(scale*(part_pos_y(bw - 1 + bw/2) - 0.01))
+    write(210,*) "(1) show"
+
+    write(210,*) 'gsave'
+    write(210,*) 'stroke'
 
   write(210,105)
   write(210,106)
