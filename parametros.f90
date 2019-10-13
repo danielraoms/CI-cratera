@@ -5,7 +5,7 @@ module parametros
 	character(100) :: entrada, posvel, overlaps, coef, kinenergy, potgenergy, rotenergy, totenergy, gainenergy, lossenergy !arquivos .dat	
 	character(100) :: kinenergyc, potgenergyc, rotenergyc, totenergyc, cratera
 	character(100) :: teste, forcasx, forcasy, forcas, dados_condini, condini, verlet_debug, simulation_time      !arquivos .dat
-	character(100) :: validation_friction, campo_continuo, espaco_temporal
+	character(100) :: validation_friction
 	character(100) :: normalforces, posicoes_val, historia_atrito
 
 
@@ -55,15 +55,6 @@ module parametros
 
 	!para a cratera
 	integer, allocatable, dimension(:) :: flag_dig !flag para sinalizar as partículas a serem cavadas
-	integer, allocatable, dimension(:,:) :: cont_cell
-	double precision, allocatable, dimension(:,:,:) :: sum_vcell
-	double precision, allocatable, dimension(:,:,:) :: mean_velocity_cell
-	double precision, allocatable, dimension(:,:,:) :: position_cell
-	double precision, allocatable, dimension(:,:) :: space_time_vel
-	double precision, allocatable, dimension(:) :: position_cell_st
-	double precision, allocatable, dimension(:,:) :: highest_of_cell
-	double precision, allocatable, dimension(:) :: highest_height
-	integer :: sum_cell
 
 
 	!para condições iniciais

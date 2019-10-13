@@ -35,7 +35,7 @@ subroutine cavar_cratera(N_resto, flag_dummy)
 	bottom_hole = 1 !a altura de aproximadamente 20 partículas da fronteira, partindo da parede inferior, não serão cavadas
 
 	!identificador para a linha de células que define a fronteira superior do buraco
-	upper_hole = 31 !acima da altura de 45 partículas, partindo da parede inferior, não há partículas
+	upper_hole = 50 !acima da altura de 45 partículas, partindo da parede inferior, não há partículas
 
 !		++             +                                        +
 !		||            ++                                        |

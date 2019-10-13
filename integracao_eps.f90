@@ -87,11 +87,11 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
   double precision, dimension (2,N), intent (in) :: vel
   double precision, dimension (1:N) :: arrow_size
   integer, intent (in) :: arq
-  integer :: l, j
+  integer :: l, j, k
   double precision :: max_force, max_vel, nx, ny
   double precision, dimension (N,3) :: rgb
   double precision, dimension (1:N) :: linewidth
-  real*8 :: scale = 800.0d0 !para raiomed = 0.1
+  real*8 :: scale = 400.0d0 !para raiomed = 0.1
 
   character (len = 20) :: filename1
 
@@ -123,7 +123,7 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
   write(210,93)
   write(210,94)
   write(210,95)
-  write(210,96) 0, 0, 3000, 2500
+  write(210,96) 0, 0, 3500, 2500
   write(210,97)
   write(210,98)
   write(210,99)
@@ -192,6 +192,55 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
      write(210,*) 'stroke'
   end do
 
+  !desenhe o eixo das ordenadas
+     write(210,108) int(scale*part_pos_x(1)), int(scale*part_pos_y(1))
+     write(210,*) 3.0, 'setlinewidth'
+     write(210,109) 0, int(scale*part_pos_y(parede))
+
+     write(210,*) 'gsave'
+
+  !desenhe o eixo das abscissas
+     write(210,108) int(scale*part_pos_x(1)), int(scale*part_pos_y(1))
+     write(210,*) 3.0, 'setlinewidth'
+     write(210,109) int(scale*part_pos_x(parede)), 0
+
+    write(210,*) 'gsave'
+    write(210,*) 'stroke'
+
+  !desenhe o grid
+    !grids horizontais
+    l = 1
+    do while (k .lt. (bw + lw))
+    	 k = (bw + 4) + 5*(l-1) !começa em bw+4, incrementa a cada 5 partículas 
+    	 write(210,108) int(scale*part_pos_x(1)), int(scale*part_pos_y(k))
+ 	 write(210,109) int(scale*part_pos_x(parede)), 0
+	 write(210,*) 0.4, 'setlinewidth'
+         write(210,110) 0.58, 0.58, 0.58
+	
+	 write(210,*) 'gsave'
+	 write(210,*) 'stroke'
+
+	 l = l + 1
+    end do
+
+
+    !grids verticais
+    l = 1
+    do while (k .lt. bw)
+    	 k = 5 + 5*(l-1) !começa em 5, incrementa a cada 5 partículas 
+    	 write(210,108) int (scale*part_pos_x(k)), int(scale*part_pos_y(1))
+	 write(210,109) 0, int(scale*part_pos_y(parede))
+	 write(210,*) 0.4, 'setlinewidth'
+	 write(210,110) 0.58, 0.58, 0.58
+
+         write(210,*) 'gsave'
+         write(210,*) 'stroke'
+	 l = l + 1
+    end do
+
+    write(210,*) 'stroke'
+
+
   write(210,105)
   write(210,106)
   write(210,107)
@@ -247,7 +296,7 @@ subroutine salva_eps_cratera(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,pa
   !create output value - number entre 000 e 999!!!
   if(ttwrite .ne. 0) then !Se diferente de 0, arquivo de CI
     if(arq .eq. 0) then
-        filename1 = "outputsxy-0000.eps"
+        filename1 = "outputcxy-0000.eps"
     else
         filename1 = "outputixy-000.eps"
     end if

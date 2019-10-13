@@ -1,0 +1,11 @@
+30		#bw --> número de partículas na BOTTOM WALL
+20		#lw --> número de partículas na LEFT WALL, sem contar a bottom wall
+20		#rw --> número de partículas na RIGHT WALL, sem contar a bottom wall e a left wall
+1000		#contmod --> salva resultados a cada contmod passos
+1000		#contmodeps --> salva arquivo .eps a cada contmodeps passos
+1000		#contmodsafe --> salva energia a cada contmodsafe passos
+0.00001		#dt --> passo de tempo
+9.806		#g --> constante gravitacional
+0.5		#xinicial --> posição x do centro da partícula mais perto da origem (0,0)
+0.5		#yinicial --> posição y do centro da partícula mais perto da origem (0,0)
+0.025		#raiomed --> raio médio das partículas do SISTEMAto
