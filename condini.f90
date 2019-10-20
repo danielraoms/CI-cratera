@@ -680,6 +680,48 @@ DO cont = floor(t/dt), 10000000
 			end do	
 		end do
 		end do
+		
+		!calculando a velocidade média de cada célula	
+		!alocando arrays
+		allocate(mean_velocity_cell(2,0:maxIycell+1,0:maxIxcell+1))
+		allocate(position_cell(2,0:maxIycell+1,0:maxIxcell+1))
+		
+		!inicializando arrays 
+		mean_velocity_cell(:,:,:) = 0.0d0
+	
+		do b = 1, maxIxcell
+		do a = 1, maxIycell
+			sum_cell = 0
+			sum_cell = sum_cell +&
+			           cont_cell(a+1,b+1)  + cont_cell(a+1,b)   + cont_cell(a+1,b)&
+				       +cont_cell(a,b-1)    + cont_cell(a,b)     + cont_cell(a,b+1)&
+				       +cont_cell(a-1,b-1)  + cont_cell(a-1,b)   + cont_cell(a-1,b+1)
+
+			if (sum_cell .ne. 0) then
+
+				!componente x
+				mean_velocity_cell(1,a,b) = (sum_vcell(1,a+1,b-1) + sum_vcell(1,a+1,b) + sum_vcell(1,a+1,b+1)&
+							   +sum_vcell(1,a,b-1)   + sum_vcell(1,a,b)   + sum_vcell(1,a,b+1)&
+							   +sum_vcell(1,a-1,b-1) + sum_vcell(1,a-1,b) + sum_vcell(1,a-1,b-1))/sum_cell
+
+				!write(*,*) "teste x", a, b, sum_cell, mean_velocity_cell(1,a,b)
+
+				!componente x
+				mean_velocity_cell(2,a,b) = (sum_vcell(2,a+1,b-1) + sum_vcell(2,a+1,b) + sum_vcell(2,a+1,b+1)&
+							   +sum_vcell(2,a,b-1)   + sum_vcell(2,a,b)   + sum_vcell(2,a,b+1)&
+							   +sum_vcell(2,a-1,b-1) + sum_vcell(2,a-1,b) + sum_vcell(2,a-1,b-1))/sum_cell
+
+				!write(*,*) "teste y", a, b, sum_cell, mean_velocity_cell(2,a,b)
+				!read(*,*)
+			else
+				mean_velocity_cell(1,a,b) = 0.0d0
+				mean_velocity_cell(2,a,b) = 0.0d0
+			end if
+
+			position_cell(1,a,b) = 2.0d0*raiomed*b
+			position_cell(2,a,b) = 2.0d0*raiomed*a
+		end do
+		end do
 	  
 	end if
 	

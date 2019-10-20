@@ -61,17 +61,19 @@ module parametros
 	integer, allocatable, dimension(:) :: flag_dig !flag para sinalizar as partículas a serem cavadas
 	
 	!post-processing
-	double precision :: massa_media  									!massa média das partículas móveis
-	double precision :: vel_maxima   									!velocidade máxima da simulação
-	double precision :: forca_maxima 									!força máxima atingida considerando toda a evolução
-	double precision :: kinetic 										!energia cinética total do sistema
-	double precision :: potentialg 										!energia potencial gravitacional total do sistema
-	double precision :: rotational_en 									!energia rotacional total do sistema
-	double precision :: totalenergy 									!energia total do sistema
-	integer, allocatable, dimension (:,:) :: cont_cell					!número de partículas em cada célula de Verlet
-	integer :: sum_cell													!
-	double precision, allocatable, dimension (:,:,:) :: sum_vcell 		!soma das velocidades das partículas para cada célula do sistema
-	double precision, allocatable, dimension (:,:) :: highest_of_cell   !altura máxima entre as partículas para cada célula do sistema
+	double precision :: massa_media  										!massa média das partículas móveis
+	double precision :: vel_maxima   										!velocidade máxima da simulação
+	double precision :: forca_maxima 										!força máxima atingida considerando toda a evolução
+	double precision :: kinetic 											!energia cinética total do sistema
+	double precision :: potentialg 											!energia potencial gravitacional total do sistema
+	double precision :: rotational_en 										!energia rotacional total do sistema
+	double precision :: totalenergy 										!energia total do sistema
+	integer, allocatable, dimension (:,:) :: cont_cell						!número de partículas em cada célula de Verlet
+	integer :: sum_cell														!
+	double precision, allocatable, dimension (:,:,:) :: sum_vcell 			!soma das velocidades das partículas para cada célula do sistema
+	double precision, allocatable, dimension (:,:) :: highest_of_cell   	!altura máxima entre as partículas para cada célula do sistema
+	double precision, allocatable, dimension (:,:,:) :: mean_velocity_cell  !velocidade média de cada célula
+	double precision, allocatable, dimension (:,:,:) :: position_cell 		!posição do vetor velocidade em cada célula 
 	
 	!para cálculo das forças
 	double precision :: Fx_elastica, Fy_elastica  									!força normal elástica nas posições x e y
