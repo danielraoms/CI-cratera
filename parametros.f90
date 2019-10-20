@@ -6,7 +6,7 @@ module parametros
 	character(100) :: kinenergyc, potgenergyc, rotenergyc, totenergyc, cratera
 	character(100) :: teste, forcasx, forcasy, forcas, dados_condini, condini, verlet_debug, simulation_time      !arquivos .dat
 	character(100) :: validation_friction
-	character(100) :: normalforces, posicoes_val, historia_atrito, filename
+	character(100) :: normalforces, posicoes_val, historia_atrito, cratera_evolucao
 
 
 	!parâmetros de entrada 
@@ -45,18 +45,6 @@ module parametros
 	double precision, allocatable, dimension(:) :: pos_x_1, pos_y_1, chains_x, chains_y
 	double precision, allocatable, dimension(:) :: normald_x, normald_y, raio_chains
 
-	!para a cratera
-	integer, allocatable, dimension(:) :: flag_dig !flag para sinalizar as partículas a serem cavadas
-	
-	!post-processing
-	double precision :: massa_media  !massa média das partículas móveis
-	double precision :: vel_maxima   !velocidade máxima da simulação
-	double precision :: forca_maxima !força máxima atingida considerando toda a evolução
-	double precision :: kinetic 					!energia cinética total do sistema
-	double precision :: potentialg 					!energia potencial gravitacional total do sistema
-	double precision :: rotational_en 				!energia rotacional total do sistema
-	double precision :: totalenergy 				!energia total do sistema
-
 	!para condições iniciais
 	integer :: i, j																			!contadores de loop
 	integer :: nummax  																		!número máximo de partículas na SIMULAÇÃO
@@ -68,8 +56,23 @@ module parametros
 	double precision, allocatable, dimension (:) :: forcax, forcay 							!forças x e y atuantes em cada partícula
 	double precision, allocatable, dimension (:) :: torque 									!torque atuante em cada partícula
 	double precision, allocatable, dimension (:,:) :: x_dummy, y_dummy, r_dummy				!arrays intermediários para posicionar partículas móveis na caixa
-
-
+	
+	!para a cratera
+	integer, allocatable, dimension(:) :: flag_dig !flag para sinalizar as partículas a serem cavadas
+	
+	!post-processing
+	double precision :: massa_media  									!massa média das partículas móveis
+	double precision :: vel_maxima   									!velocidade máxima da simulação
+	double precision :: forca_maxima 									!força máxima atingida considerando toda a evolução
+	double precision :: kinetic 										!energia cinética total do sistema
+	double precision :: potentialg 										!energia potencial gravitacional total do sistema
+	double precision :: rotational_en 									!energia rotacional total do sistema
+	double precision :: totalenergy 									!energia total do sistema
+	integer, allocatable, dimension (:,:) :: cont_cell					!número de partículas em cada célula de Verlet
+	integer :: sum_cell													!
+	double precision, allocatable, dimension (:,:,:) :: sum_vcell 		!soma das velocidades das partículas para cada célula do sistema
+	double precision, allocatable, dimension (:,:) :: highest_of_cell   !altura máxima entre as partículas para cada célula do sistema
+	
 	!para cálculo das forças
 	double precision :: Fx_elastica, Fy_elastica  									!força normal elástica nas posições x e y
 	double precision :: Fx_viscosa, Fy_viscosa    									!força normal viscosa nas posições x e y

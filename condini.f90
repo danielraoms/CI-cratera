@@ -622,30 +622,68 @@ DO cont = floor(t/dt), 10000000
 	!evolui no tempo as posições, velocidades e ângulos das partículas
 	call integracao_verlet_cratera()
 
-	!gera arquivo .eps com configuração do sistema na iteração atual
-	!calcula as energias da configuração do sistema na iteração atual
+!!!!!!!!!!!!!!!!!!!!SETUP para POST-PROCESSING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	if (mod(cont,contmodeps) .eq. 0) then
 
-		!chama subroutine para gerar arquivo .eps com configuração do sistema 
-		!call salva_eps_cratera(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total,flag_dig)
-
+		!calculando as energias do tempo atual do sistema
 		call energias()
+		
+		!escrevendo dados da iteração atual necessários para gerar imagens da evolução 		
+		write(cratera_evolucao,'("crateraevolucao_", I4, ".dat")') contmodeps/cont
+		open (unit = 213, file=trim(cratera_evolucao), status = "unknown")
+		
+	    do j = 1, N
+			write(213,*) i, r(i), xnew(i), vxnew(i), vxnew(i), forcax(i), ynew(i), vynew(i), forcay(i), omega_new, torque(i)
+		end do
+	
+		!calculando a soma das velocidades das partículas para cada célula do sistema
+		!alocando arrays
+		allocate(cont_cell(maxIycell,maxIxcell))
+		allocate(sum_vcell(2,0:maxIycell+1,0:maxIxcell+1))
+		allocate(highest_of_cell(maxIycell,maxIxcell))
+		
+		!inicializando arrays
+		sum_vcell(:,:,:) = 0.0d0
+		cont_cell(:,:) = 0
+		highest_of_cell(:,:) = 0.0d0
+		sum_cell = 0
+
+		!itere todas as células do sistema
+		do b = 1, maxIxcell
+		do a = 1, maxIycell
+
+			!tome a partícula head da célula teste (a,b) como a partícula teste
+			p = tdl(a,b)
+
+			do while (p .gt. 0)
+
+				if (flag_dig(p) .eq. 1) then
+
+					!calculando a soma das velocidades das partículas para a célula (a,b)
+					sum_vcell(1,a,b) = sum_vcell(1,a,b) + vxold(p)
+					sum_vcell(2,a,b) = sum_vcell(2,a,b) + vyold(p)
+
+					!calculando a altura máxima entre as partículas da célula (a,b)
+					if (xold(p) .gt. highest_of_cell(a,b)) then
+						highest_of_cell(a,b) = xold(p)
+					else
+						highest_of_cell(a,b) = highest_of_cell(a,b)
+					end if
+
+					cont_cell(a,b) = cont_cell(a,b) + 1
+
+					p = links(p)
+				else 
+					p = links(p)
+					continue
+				end if
+			end do	
+		end do
+		end do
+	  
 	end if
 	
-		if (mod(cont,contmodeps) .eq. 0) then
-		   filename = "cratera_evolucao-0000.dat"
-	  
-		   filename(14:14)=CHAR(48+mod(int(cont/contmodeps),10))
-           filename(13:13)=CHAR(48+(mod(int(cont/contmodeps),100)/10))
-           filename(12:12)=CHAR(48+(mod(int(cont/contmodeps),1000)/100))
-           filename(11:11)  =CHAR(48+int(cont/contmodeps)/1000)
-  
-		   open(unit=213,file=filename,status='unknown')
-		   
-		   do j = 1, N
-				write(213,*) i, r(i), xnew(i), vxnew(i), vxnew(i), forcax(i), ynew(i), vynew(i), forcay(i), omega_new, torque(i)
-		   end do
-	end if
+
 
 	!atualizando friction history detection-arrays
 	detector_old(:,:) = detector_new(:,:)
@@ -664,7 +702,7 @@ DO cont = floor(t/dt), 10000000
 		end if
 	end do	
 	
-	
+	!reinicializando forças para próximo passo de tempo
 	do i = 1, N
 		forcax(i) = 0.0d0
 		forcay(i) = 0.0d0
