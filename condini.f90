@@ -637,15 +637,18 @@ DO cont = floor(t/dt), 10000000
 		end do
 	
 		!calculando a soma das velocidades das partículas para cada célula do sistema
+		!calculando a soma das áreas ocupadas pelas partículas para cada célula do sistema 
 		!alocando arrays
 		allocate(cont_cell(maxIycell,maxIxcell))
 		allocate(sum_vcell(2,0:maxIycell+1,0:maxIxcell+1))
 		allocate(highest_of_cell(maxIycell,maxIxcell))
+		allocate(sum_packcell(0:maxIycell+1,0:maxIxcell+1))
 		
 		!inicializando arrays
 		sum_vcell(:,:,:) = 0.0d0
 		cont_cell(:,:) = 0
 		highest_of_cell(:,:) = 0.0d0
+		sum_packcell(:,:) = 0.0d0
 		sum_cell = 0
 
 		!itere todas as células do sistema
@@ -669,6 +672,9 @@ DO cont = floor(t/dt), 10000000
 					else
 						highest_of_cell(a,b) = highest_of_cell(a,b)
 					end if
+					
+					!calculando a área ocupada por partículas na célula
+					sum_packcell(a,b) = sum_packcell(a,b) + (r(p)**2.0d0) !somamos somente r^2, e depois multiplicaremos tudo por pi
 
 					cont_cell(a,b) = cont_cell(a,b) + 1
 
@@ -682,9 +688,11 @@ DO cont = floor(t/dt), 10000000
 		end do
 		
 		!calculando a velocidade média de cada célula	
+		!calculando packing fraction de cada célula
 		!alocando arrays
 		allocate(mean_velocity_cell(2,0:maxIycell+1,0:maxIxcell+1))
 		allocate(position_cell(2,0:maxIycell+1,0:maxIxcell+1))
+		allocate(packing_fraction(0:maxIycell+1,0:maxIxcell+1))
 		
 		!inicializando arrays 
 		mean_velocity_cell(:,:,:) = 0.0d0
@@ -699,20 +707,27 @@ DO cont = floor(t/dt), 10000000
 
 			if (sum_cell .ne. 0) then
 
-				!componente x
+				!componente x da velocidade média na célula
 				mean_velocity_cell(1,a,b) = (sum_vcell(1,a+1,b-1) + sum_vcell(1,a+1,b) + sum_vcell(1,a+1,b+1)&
 							   +sum_vcell(1,a,b-1)   + sum_vcell(1,a,b)   + sum_vcell(1,a,b+1)&
 							   +sum_vcell(1,a-1,b-1) + sum_vcell(1,a-1,b) + sum_vcell(1,a-1,b-1))/sum_cell
 
 				!write(*,*) "teste x", a, b, sum_cell, mean_velocity_cell(1,a,b)
 
-				!componente x
+				!componente x da velocidade média na célula
 				mean_velocity_cell(2,a,b) = (sum_vcell(2,a+1,b-1) + sum_vcell(2,a+1,b) + sum_vcell(2,a+1,b+1)&
 							   +sum_vcell(2,a,b-1)   + sum_vcell(2,a,b)   + sum_vcell(2,a,b+1)&
 							   +sum_vcell(2,a-1,b-1) + sum_vcell(2,a-1,b) + sum_vcell(2,a-1,b-1))/sum_cell
 
 				!write(*,*) "teste y", a, b, sum_cell, mean_velocity_cell(2,a,b)
-				!read(*,*)
+	
+				!packig fraction 
+				!calculando packing fraction das partículas da célula
+				aux_pack = 9.0d0*((2.0d0*raiomed)**2.0d0) !a packig fraction em uma dada célula é a média das packing fractions das células adjacentes(8) e dela mesma(+1 = 9)
+				
+				packing_fraction(a,b) = pi*((sum_packcell(a+1, b-1) + sum_packcell(a+1, b) + sum_packcell(a+1, b+1)&
+								 + sum_packcell(a, b-1) + sum_packcell(a, b) + sum_packcell(a, b+1)&
+								 + sum_packcell(a-1, b-1) + sum_packcell(a-1, b) + sum_packcell(a-1, b-1))/aux_pack) !multiplicamos agora por pi
 			else
 				mean_velocity_cell(1,a,b) = 0.0d0
 				mean_velocity_cell(2,a,b) = 0.0d0

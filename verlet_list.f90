@@ -13,7 +13,7 @@ subroutine lista_verlet(tdl_dummy)
 		end do
 	enddo	
 
-	Rcell = (2.1d0*raiomed) !o raio da célula é o diâmetro das partículas das paredes (fronteiras) do domínio 
+	Rcell = (2.0d0*raiomed) !o raio da célula é o diâmetro das partículas das paredes (fronteiras) do domínio 
 	
 	!Localizar partículas e por nas respectivas células
 	do k = 1, N

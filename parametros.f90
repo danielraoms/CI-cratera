@@ -68,12 +68,15 @@ module parametros
 	double precision :: potentialg 											!energia potencial gravitacional total do sistema
 	double precision :: rotational_en 										!energia rotacional total do sistema
 	double precision :: totalenergy 										!energia total do sistema
+	double precision :: aux_pack											!auxiliar para calcular packing fraction
 	integer, allocatable, dimension (:,:) :: cont_cell						!número de partículas em cada célula de Verlet
 	integer :: sum_cell														!
 	double precision, allocatable, dimension (:,:,:) :: sum_vcell 			!soma das velocidades das partículas para cada célula do sistema
 	double precision, allocatable, dimension (:,:) :: highest_of_cell   	!altura máxima entre as partículas para cada célula do sistema
 	double precision, allocatable, dimension (:,:,:) :: mean_velocity_cell  !velocidade média de cada célula
 	double precision, allocatable, dimension (:,:,:) :: position_cell 		!posição do vetor velocidade em cada célula 
+	double precision, allocatable, dimension (:,:) :: sum_packcell 			!soma das áreas das partículas de uma célula, para cada célula
+	double precision, allocatable, dimension (:,:) :: packing_fraction 		!packing fraction de cada célula
 	
 	!para cálculo das forças
 	double precision :: Fx_elastica, Fy_elastica  									!força normal elástica nas posições x e y
