@@ -91,7 +91,7 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
   double precision :: max_force, max_vel, nx, ny
   double precision, dimension (N,3) :: rgb
   double precision, dimension (1:N) :: linewidth
-  real*8 :: scale = 400.0d0 !para raiomed = 0.1
+  real*8 :: scale = 200.0d0 !para raiomed = 0.1
 
   character (len = 20) :: filename1
 

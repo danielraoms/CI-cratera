@@ -405,7 +405,7 @@ DO cont = 1, int(50/dt)
 	if (mod(cont,contmodeps) .eq. 0) then
 
 		!chama subroutine para gerar arquivo .eps com configuração do sistema 
-		call salva_eps(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total)
+		!call salva_eps(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total)
 
 		call energias()
 	end if
@@ -429,6 +429,18 @@ END DO
 	write(*,*) "N_restante", N, N_restante
 
 	write(*,*) "Cratera cavada. Evoluindo..."
+	
+		massa_media = 0.0d0
+	do j = 1, N
+		if (flag_dig(j) .eq. 1) then
+			massa_media = massa_media + m(j)
+		else 
+			CONTINUE 
+		end if
+	end do
+	
+	!inicializando forca_maxima
+	forca_maxima = 0.0d0
 
 !loop do tempo
 DO cont = floor(t/dt), 10000000	
@@ -443,7 +455,7 @@ DO cont = floor(t/dt), 10000000
 
 	!escreve o tempo atual na tela
 	!escreve as energias em seus respectivos arquivos .dat
-	if (mod(cont,10) .eq. 0) then
+	if (mod(cont,100) .eq. 0) then
 		write(50,*) cont*dt, kinetic
 		write(60,*) cont*dt, potentialg
 		write(70,*) cont*dt, rotational_en
@@ -457,7 +469,7 @@ DO cont = floor(t/dt), 10000000
 			open (unit = 105, file=trim(cratera), status = "unknown")
 
 			do i = 1, N
-				write(105,*) r(i),m(i),inertia(i),xold(i),xnew(i),vxold(i),vxnew(i),forcax(i),yold(i),ynew(i),&
+				write(105,*) i, r(i),m(i),inertia(i),xold(i),xnew(i),vxold(i),vxnew(i),forcax(i),yold(i),ynew(i),&
 			    		    vyold(i),vynew(i),forcay(i),theta_old(i),theta_new(i),omega_old(i),omega_new(i),torque(i),&
 					    E_young(i),v_poisson(i),G_shear(i)
 			end do
@@ -467,7 +479,7 @@ DO cont = floor(t/dt), 10000000
 			!itere enquanto (kinetic .LT. toleranciastop)
 			if ((kinetic .LT. toleranciakin/10.0d0) .AND. (rotational_en .LT. toleranciarot/10.0d0) .AND. (cont .GT. 3000000)) then
 			
-			write(*,*) "Equilíbrio:", t, kinetic, rotational_en
+			write(*,*) "Equilíbrio (cratera):", t, kinetic, rotational_en
 			!call execute_command_line ("gfortran cratera.f90")
 
 			
@@ -610,27 +622,54 @@ DO cont = floor(t/dt), 10000000
 	!evolui no tempo as posições, velocidades e ângulos das partículas
 	call integracao_verlet_cratera()
 
-	do i = 1, N
-		forcax(i) = 0.0d0
-		forcay(i) = 0.0d0
-		torque(i) = 0.0d0
-	end do
-
-	velocidade_total(1,:) = vxold(:)
-	velocidade_total(2,:) = vyold(:)  
-
 	!gera arquivo .eps com configuração do sistema na iteração atual
 	!calcula as energias da configuração do sistema na iteração atual
 	if (mod(cont,contmodeps) .eq. 0) then
 
 		!chama subroutine para gerar arquivo .eps com configuração do sistema 
-		call salva_eps_cratera(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total,flag_dig)
+		!call salva_eps_cratera(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total,flag_dig)
 
 		call energias()
 	end if
+	
+		if (mod(cont,contmodeps) .eq. 0) then
+		   filename = "cratera_evolucao-0000.dat"
+	  
+		   filename(14:14)=CHAR(48+mod(int(cont/contmodeps),10))
+           filename(13:13)=CHAR(48+(mod(int(cont/contmodeps),100)/10))
+           filename(12:12)=CHAR(48+(mod(int(cont/contmodeps),1000)/100))
+           filename(11:11)  =CHAR(48+int(cont/contmodeps)/1000)
+  
+		   open(unit=213,file=filename,status='unknown')
+		   
+		   do j = 1, N
+				write(213,*) i, r(i), xnew(i), vxnew(i), vxnew(i), forcax(i), ynew(i), vynew(i), forcay(i), omega_new, torque(i)
+		   end do
+	end if
 
-	!atualizando friction history detection arrays
+	!atualizando friction history detection-arrays
 	detector_old(:,:) = detector_new(:,:)
+	
+	!detectando força máxima
+	do i = 1, N 
+		if (sqrt(forcax(i)**2.0d0 + forcay(i)**2.0d0)	.gt. forca_maxima) then
+			forca_maxima = sqrt(forcax(i)**2.0d0 + forcay(i)**2.0d0)
+		end if
+	end do
+	
+	!detectando velocidade máxima 
+	do i = 1, N 
+		if (sqrt(vxnew(i)**2.0d0 + vynew(i)**2.0d0) .gt. vel_maxima) then
+			vel_maxima = sqrt(vxnew(i)**2.0d0 + vynew(i)**2.0d0)
+		end if
+	end do	
+	
+	
+	do i = 1, N
+		forcax(i) = 0.0d0
+		forcay(i) = 0.0d0
+		torque(i) = 0.0d0
+	end do
 
 END DO
 
@@ -642,7 +681,7 @@ END DO
 	write(101,*) '("Time = ", f6.3," minutes.")', (finish-start)/60, (finish-start)/3600
 	write(*,*) '("Time = ", f6.3," minutes.")', (finish-start)/60, (finish-start)/3600
 
-	write(*,*) "forca máxima", maximum_force
+	write(*,*) "forca máxima", massa_media, forca_maxima, vel_maxima
 
 	write(*,*) "The simulation reached its end time."
 end program Colisaoverlet2D

@@ -6,7 +6,7 @@ module parametros
 	character(100) :: kinenergyc, potgenergyc, rotenergyc, totenergyc, cratera
 	character(100) :: teste, forcasx, forcasy, forcas, dados_condini, condini, verlet_debug, simulation_time      !arquivos .dat
 	character(100) :: validation_friction
-	character(100) :: normalforces, posicoes_val, historia_atrito
+	character(100) :: normalforces, posicoes_val, historia_atrito, filename
 
 
 	!parâmetros de entrada 
@@ -38,49 +38,49 @@ module parametros
 	double precision :: sinal_tan
 	integer :: N_restante !número de partículas restante após cavar
 
-	!para cálculo das energias
-	double precision :: kinetic 					!energia cinética total do sistema
-	double precision :: potentialg 					!energia potencial gravitacional total do sistema
-	double precision :: rotational_en 				!energia rotacional total do sistema
-	double precision :: totalenergy 				!energia total do sistema
-	double precision :: maximum_force 				!força máxima atingida considerando toda a evolução
-
-
 	!lista de verlet
-	integer ::  maxIxcell, maxIycell	     !número máximo de células na lista de Verlet
-	integer, allocatable, dimension (:,:) :: tdl !Tête de Liste
-	integer, allocatable, dimension (:) :: links !next tdl
+	integer ::  maxIxcell, maxIycell	    											 !número máximo de células na lista de Verlet
+	integer, allocatable, dimension (:,:) :: tdl 										 !Tête de Liste
+	integer, allocatable, dimension (:) :: links 										 !next tdl
 	double precision, allocatable, dimension(:) :: pos_x_1, pos_y_1, chains_x, chains_y
 	double precision, allocatable, dimension(:) :: normald_x, normald_y, raio_chains
 
 	!para a cratera
 	integer, allocatable, dimension(:) :: flag_dig !flag para sinalizar as partículas a serem cavadas
-
+	
+	!post-processing
+	double precision :: massa_media  !massa média das partículas móveis
+	double precision :: vel_maxima   !velocidade máxima da simulação
+	double precision :: forca_maxima !força máxima atingida considerando toda a evolução
+	double precision :: kinetic 					!energia cinética total do sistema
+	double precision :: potentialg 					!energia potencial gravitacional total do sistema
+	double precision :: rotational_en 				!energia rotacional total do sistema
+	double precision :: totalenergy 				!energia total do sistema
 
 	!para condições iniciais
-	integer :: i, j											!contadores de loop
-	integer :: nummax  										!número máximo de partículas na SIMULAÇÃO
-	double precision, allocatable, dimension (:) :: r, m, inertia 					!raio, massa e momento de inércia de cada partícula
-	double precision, allocatable, dimension (:) :: xold, yold, xnew, ynew, xnewer, ynewer  	!posições x e y de cada partícula
-	double precision, allocatable, dimension (:) :: vxold, vyold, vxnew, vynew			!velocidades x e y de cada partícula
-	double precision, allocatable, dimension (:) :: theta_old, theta_new	        		!deslocamento angular de cada partícula
- 	double precision, allocatable, dimension (:) :: omega_old, omega_new				!velocidade angular de cada partícula
-	double precision, allocatable, dimension (:) :: forcax, forcay 					!forças x e y atuantes em cada partícula
-	double precision, allocatable, dimension (:) :: torque 						!torque atuante em cada partícula
-	double precision, allocatable, dimension (:,:) :: x_dummy, y_dummy, r_dummy			!arrays intermediários para posicionar partículas móveis na caixa
+	integer :: i, j																			!contadores de loop
+	integer :: nummax  																		!número máximo de partículas na SIMULAÇÃO
+	double precision, allocatable, dimension (:) :: r, m, inertia 							!raio, massa e momento de inércia de cada partícula
+	double precision, allocatable, dimension (:) :: xold, yold, xnew, ynew, xnewer, ynewer  !posições x e y de cada partícula
+	double precision, allocatable, dimension (:) :: vxold, vyold, vxnew, vynew				!velocidades x e y de cada partícula
+	double precision, allocatable, dimension (:) :: theta_old, theta_new	       			!deslocamento angular de cada partícula
+ 	double precision, allocatable, dimension (:) :: omega_old, omega_new					!velocidade angular de cada partícula
+	double precision, allocatable, dimension (:) :: forcax, forcay 							!forças x e y atuantes em cada partícula
+	double precision, allocatable, dimension (:) :: torque 									!torque atuante em cada partícula
+	double precision, allocatable, dimension (:,:) :: x_dummy, y_dummy, r_dummy				!arrays intermediários para posicionar partículas móveis na caixa
 
 
 	!para cálculo das forças
-	double precision :: Fx_elastica, Fy_elastica  			!força normal elástica nas posições x e y
-	double precision :: Fx_viscosa, Fy_viscosa    			!força normal viscosa nas posições x e y
-	double precision :: Fs_tangencial	  			!força tangencial 
-	double precision :: Fat_x, Fat_y				!força de atrito nas posições x e y
-	double precision, allocatable, dimension (:) :: F_elastica 	!força elástica total de cada partícula (para .eps)
-	double precision :: ndx, ndy					!componentes x e y da direção normal do contato
-	double precision :: T_rolling     !torque de rolling friction
-	double precision, allocatable, dimension (:,:) :: dx_history_x, dx_history_y 			!valores da história do atrito para um dado contato 
+	double precision :: Fx_elastica, Fy_elastica  									!força normal elástica nas posições x e y
+	double precision :: Fx_viscosa, Fy_viscosa    									!força normal viscosa nas posições x e y
+	double precision :: Fs_tangencial	  											!força tangencial 
+	double precision :: Fat_x, Fat_y												!força de atrito nas posições x e y
+	double precision, allocatable, dimension (:) :: F_elastica 						!força elástica total de cada partícula (para .eps)
+	double precision :: ndx, ndy													!componentes x e y da direção normal do contato
+	double precision :: T_rolling     												!torque de rolling friction
+	double precision, allocatable, dimension (:,:) :: dx_history_x, dx_history_y 	!valores da história do atrito para um dado contato 
 	integer, allocatable, dimension(:,:) :: detector_old, detector_new				!detectores de colisão para a história do atrito 
-	double precision ::  sinal_vrel 								!sinal da velocidade relativa tangencial
+	double precision ::  sinal_vrel 												!sinal da velocidade relativa tangencial
 
 	!dados das partículas
 	double precision, allocatable, dimension (:) :: E_young						!Young's modulus de cada partícula
