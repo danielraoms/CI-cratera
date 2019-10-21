@@ -73,12 +73,15 @@ module parametros
 	integer :: sum_cell														!
 	integer :: cont_all_cells
 	double precision, allocatable, dimension (:,:,:) :: sum_vcell 			!soma das velocidades das partículas para cada célula do sistema
-	double precision, allocatable, dimension (:,:) :: highest_of_cell   	!altura máxima entre as partículas para cada célula do sistema
+	double precision, allocatable, dimension (:,:,:) :: highest_of_cell   	!altura máxima entre as partículas para cada célula do sistema
 	double precision, allocatable, dimension (:,:,:) :: mean_velocity_cell  !velocidade média de cada célula
 	double precision, allocatable, dimension (:,:,:) :: position_cell 		!posição do vetor velocidade em cada célula 
 	double precision, allocatable, dimension (:,:) :: sum_packcell 			!soma das áreas das partículas de uma célula, para cada célula
 	double precision, allocatable, dimension (:,:) :: packing_fraction 		!packing fraction de cada célula
+	double precision, allocatable, dimension (:) :: highest_height			!valor da altura máxima da partícula mais alta de cada coluna de células
+	double precision, allocatable, dimension (:) :: x_of_highest_height 	!valor correspondente da posição x da altura máima da partícula mais alta de cada coluna de células 
 	double precision :: packing_fraction_sys								!packing fraction do sistema
+	double precision, allocatable, dimension (:) :: aux_location 										!localização da célula que contém a partícula com altura máxima da coluna 
 	
 	!para cálculo das forças
 	double precision :: Fx_elastica, Fy_elastica  									!força normal elástica nas posições x e y

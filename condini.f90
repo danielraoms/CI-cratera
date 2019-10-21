@@ -633,13 +633,13 @@ DO cont = floor(t/dt), 10000000
 		!alocando arrays
 		allocate(cont_cell(maxIycell,maxIxcell))
 		allocate(sum_vcell(2,0:maxIycell+1,0:maxIxcell+1))
-		allocate(highest_of_cell(maxIycell,maxIxcell))
+		allocate(highest_of_cell(2,0:maxIycell+1,0:maxIxcell+1))
 		allocate(sum_packcell(0:maxIycell+1,0:maxIxcell+1))
 		
 		!inicializando arrays
 		sum_vcell(:,:,:) = 0.0d0
 		cont_cell(:,:) = 0
-		highest_of_cell(:,:) = 0.0d0
+		highest_of_cell(:,:,:) = 0.0d0
 		sum_packcell(:,:) = 0.0d0
 		sum_cell = 0
 		cont_all_cells = 0
@@ -666,10 +666,9 @@ DO cont = floor(t/dt), 10000000
 					sum_vcell(2,a,b) = sum_vcell(2,a,b) + vyold(p)
 
 					!calculando a altura máxima entre as partículas da célula (a,b)
-					if (xold(p) .gt. highest_of_cell(a,b)) then
-						highest_of_cell(a,b) = xold(p)
-					else
-						highest_of_cell(a,b) = highest_of_cell(a,b)
+					if (yold(p) .gt. highest_of_cell(2,a,b)) then
+						highest_of_cell(1,a,b) = xold(p)
+						highest_of_cell(2,a,b) = yold(p)
 					end if
 					
 					!calculando a área ocupada por partículas na célula
@@ -688,10 +687,14 @@ DO cont = floor(t/dt), 10000000
 		
 		!calculando a velocidade média de cada célula	
 		!calculando packing fraction de cada célula
+		!calculando partícula com altura máxima de cada célula 
 		!alocando arrays
 		allocate(mean_velocity_cell(2,0:maxIycell+1,0:maxIxcell+1))
 		allocate(position_cell(2,0:maxIycell+1,0:maxIxcell+1))
 		allocate(packing_fraction(0:maxIycell+1,0:maxIxcell+1))
+		allocate(highest_height(0:maxIxcell+1))
+		allocate(x_of_highest_height(0:maxIycell+1))
+		allocate(aux_location(0:maxIxcell+1))
 		
 		!inicializando arrays 
 		mean_velocity_cell(:,:,:) = 0.0d0
@@ -734,17 +737,24 @@ DO cont = floor(t/dt), 10000000
 				packing_fraction(a,b) = 0.0d0
 			end if
 			
-			packing_fraction_sys = sum(packing_fraction(:,:))/cont_all_cells
-
 			position_cell(1,a,b) = 2.0d0*raiomed*b
 			position_cell(2,a,b) = 2.0d0*raiomed*a
 		end do
 		end do
 		
-		!escrevendo dados da evolução da altura da coluna e packing_fraction do sistema
-		write(212,*) t, altura_maxima, packing_fraction
+		!calculando a packing fraction do sistema 
+		packing_fraction_sys = sum(packing_fraction(:,:))/cont_all_cells
 		
-		!escrevendo dados da iteração atual necessários para gerar imagens da evolução 		
+		!calculando altura máxima para cada coluna (para cada posição x)
+		do b = 1, maxIxcell
+			highest_height(b) = maxval(highest_of_cell(2,:,b))
+			aux_location = maxloc(highest_of_cell(2,:,b))
+		end do
+		
+		!escrevendo dados da evolução da altura da coluna e packing_fraction do sistema
+		write(212,*) t, altura_maxima, packing_fraction_sys
+		
+		!escrevendo dados necessários para gerar imagens da evolução 		
 		write(cratera_evolucao,'("crateraevolucao_", I4, ".dat")') contmodeps/cont
 		open (unit = 213, file=trim(cratera_evolucao), status = "unknown")
 		
@@ -755,9 +765,10 @@ DO cont = floor(t/dt), 10000000
 		write(cratera_post, '("craterapost_", I4, ".dat")') contmodeps/cont
 		open (unit = 214, file=trim(cratera_post), status = "unknown")
 		
+		!escrevendo dados para obter post-processing - velocidades médias, altura máxima e packing fraction 		
 		do b = 1, maxIxcell
 		do a = 1, maxIycell
-			write(214,*) 
+			write(214,*) mean_velocity_cell(1,a,b), mean_velocity_cell(2,a,b), packing_fraction(a,b)
 		end do
 		end do
 	
