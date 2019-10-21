@@ -83,8 +83,8 @@ call cpu_time(start)
 	read(1,*) lw			!número de partículas na LEFT WALL, sem contar a bottom wall
 	read(1,*) rw			!número de partículas na RIGHT WALL, sem contar a bottom wall e a left wall
 	read(1,*) contmod		!salva resultados a cada contmod passos
-	read(1,*) contmodeps		!salva arquivo .eps a cada contmodeps passos
-	read(1,*) contmodsafe		!salva energia a cada contmodsafe passos
+	read(1,*) contmodeps	!salva arquivo .eps a cada contmodeps passos
+	read(1,*) contmodsafe	!salva energia a cada contmodsafe passos
 	read(1,*) dt			!passo de tempo
 	read(1,*) g 			!constante gravitacional
 	read(1,*) xinicial		!posição x do centro da partícula mais perto da origem (0,0)
@@ -749,6 +749,8 @@ DO cont = floor(t/dt), 10000000
 		do b = 1, maxIxcell
 			highest_height(b) = maxval(highest_of_cell(2,:,b))
 			aux_location = maxloc(highest_of_cell(2,:,b))
+			write(*,*) "aux location", aux_location 
+			read(*,*)
 		end do
 		
 		!escrevendo dados da evolução da altura da coluna e packing_fraction do sistema

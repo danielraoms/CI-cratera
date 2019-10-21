@@ -367,7 +367,7 @@ subroutine salva_eps_cratera(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,pa
   write(210,93)
   write(210,94)
   write(210,95)
-  write(210,96) 0, 0, 3000, 2500
+  write(210,96) 0, 0, 2000, 1500
   write(210,97)
   write(210,98)
   write(210,99)

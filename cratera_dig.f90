@@ -26,7 +26,7 @@ subroutine cavar_cratera(N_resto, flag_dummy)
 
 
 	!identificador para a coluna de células que define a fronteira esquerda do buraco
-	left_hole = 16 !um terço do comprimento da parede inferior das células à esquerda não serão cavadas
+	left_hole = 6 !um terço do comprimento da parede inferior das células à esquerda não serão cavadas
 
 	!identificador para a coluna de células que define a fronteira direita do buraco
 	right_hole = 50 !um terço do comprimento da parede inferior das células à direita não serão cavadas
@@ -35,17 +35,17 @@ subroutine cavar_cratera(N_resto, flag_dummy)
 	bottom_hole = 2 !a altura de aproximadamente 20 partículas da fronteira, partindo da parede inferior, não serão cavadas
 
 	!identificador para a linha de células que define a fronteira superior do buraco
-	upper_hole = 16 !acima da altura de 45 partículas, partindo da parede inferior, não há partículas
+	upper_hole = 6 !acima da altura de 45 partículas, partindo da parede inferior, não há partículas
 
 !		++             +                                        +
 !		||            ++                                        |
 !		||            ||                                        |
-!		||            |-----------------------------------------------+ Upper hole
+!		|| ------------|-----------------------------------------------+ Upper hole
 !		||            ||                                        |
 !		||            ||                                        |
-!		||            ||                                        |
-!		||            ||                                        |
-!		||            ||                                        |
+!		|| PARTÍCULAS ||                                        |
+!		||   NESTA    ||                                        |
+!		||   REGIÃO   ||    SEM PARTÍCULAS NESTA REGIÃO         |
 !		||            ||                                        |
 !		||            ||                                        |
 !		||            ||                                        |
@@ -53,9 +53,9 @@ subroutine cavar_cratera(N_resto, flag_dummy)
 !		||            ||                                        |
 !		|--------------------------------------------------------------+ Bottom Hole
 !		+-------------------------------------------------------+
-!			       |                                        |
-!			       +                                        +
-!			    Left hole                                 Right hole
+!			          |                                        |
+!			          +                                        +
+!			      Left hole                                 Right hole
 !É UM BATALHA NAVAL! MUDE U, B, R, L COMO QUISER
 
 
