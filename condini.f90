@@ -441,6 +441,10 @@ END DO
 	
 	!inicializando forca_maxima
 	forca_maxima = 0.0d0
+	
+	!abre arquivo para altura máxima da cratera ao longo da evolução 
+	write(altura_maxima,'("alturamax.dat")') contmodeps/cont
+	open (unit = 212, file=trim(altura_maxima), status = "unknown")
 
 !loop do tempo
 DO cont = floor(t/dt), 10000000	
@@ -506,10 +510,6 @@ DO cont = floor(t/dt), 10000000
 		call lista_verlet(tdl) 
 	!end if
 
-	!used for validation of friction of a single moving particle moving over a fixed plate 
-	!xwall = xnew(paredes+1)
-
-	
 	!itere todas as células interiores do sistema
 	do b = 1, maxIxcell
 	do a = 1, maxIycell
@@ -627,14 +627,6 @@ DO cont = floor(t/dt), 10000000
 
 		!calculando as energias do tempo atual do sistema
 		call energias()
-		
-		!escrevendo dados da iteração atual necessários para gerar imagens da evolução 		
-		write(cratera_evolucao,'("crateraevolucao_", I4, ".dat")') contmodeps/cont
-		open (unit = 213, file=trim(cratera_evolucao), status = "unknown")
-		
-	    do j = 1, N
-			write(213,*) i, r(i), xnew(i), vxnew(i), vxnew(i), forcax(i), ynew(i), vynew(i), forcay(i), omega_new, torque(i)
-		end do
 	
 		!calculando a soma das velocidades das partículas para cada célula do sistema
 		!calculando a soma das áreas ocupadas pelas partículas para cada célula do sistema 
@@ -650,6 +642,7 @@ DO cont = floor(t/dt), 10000000
 		highest_of_cell(:,:) = 0.0d0
 		sum_packcell(:,:) = 0.0d0
 		sum_cell = 0
+		cont_all_cells = 0
 
 		!itere todas as células do sistema
 		do b = 1, maxIxcell
@@ -658,9 +651,15 @@ DO cont = floor(t/dt), 10000000
 			!tome a partícula head da célula teste (a,b) como a partícula teste
 			p = tdl(a,b)
 
+			!calculando o número de células com alguma partícula nela
+			if ((p .ne. 0) .and. (p .gt. paredes)) then
+				cont_all_cells = cont_all_cells + 1			
+			end if
+
 			do while (p .gt. 0)
 
-				if (flag_dig(p) .eq. 1) then
+				!considere somente as partículas móveis cavadas
+				if ((flag_dig(p) .eq. 1) .and. (p .gt. paredes)) then
 
 					!calculando a soma das velocidades das partículas para a célula (a,b)
 					sum_vcell(1,a,b) = sum_vcell(1,a,b) + vxold(p)
@@ -728,20 +727,42 @@ DO cont = floor(t/dt), 10000000
 				packing_fraction(a,b) = pi*((sum_packcell(a+1, b-1) + sum_packcell(a+1, b) + sum_packcell(a+1, b+1)&
 								 + sum_packcell(a, b-1) + sum_packcell(a, b) + sum_packcell(a, b+1)&
 								 + sum_packcell(a-1, b-1) + sum_packcell(a-1, b) + sum_packcell(a-1, b-1))/aux_pack) !multiplicamos agora por pi
+					
 			else
 				mean_velocity_cell(1,a,b) = 0.0d0
 				mean_velocity_cell(2,a,b) = 0.0d0
+				packing_fraction(a,b) = 0.0d0
 			end if
+			
+			packing_fraction_sys = sum(packing_fraction(:,:))/cont_all_cells
 
 			position_cell(1,a,b) = 2.0d0*raiomed*b
 			position_cell(2,a,b) = 2.0d0*raiomed*a
 		end do
 		end do
-	  
+		
+		!escrevendo dados da evolução da altura da coluna e packing_fraction do sistema
+		write(212,*) t, altura_maxima, packing_fraction
+		
+		!escrevendo dados da iteração atual necessários para gerar imagens da evolução 		
+		write(cratera_evolucao,'("crateraevolucao_", I4, ".dat")') contmodeps/cont
+		open (unit = 213, file=trim(cratera_evolucao), status = "unknown")
+		
+	    do j = 1, N
+			write(213,*) t, i, r(i), xnew(i), vxnew(i), vxnew(i), forcax(i), ynew(i), vynew(i), forcay(i), omega_new, torque(i)
+		end do
+		
+		write(cratera_post, '("craterapost_", I4, ".dat")') contmodeps/cont
+		open (unit = 214, file=trim(cratera_post), status = "unknown")
+		
+		do b = 1, maxIxcell
+		do a = 1, maxIycell
+			write(214,*) 
+		end do
+		end do
+	
 	end if
 	
-
-
 	!atualizando friction history detection-arrays
 	detector_old(:,:) = detector_new(:,:)
 	

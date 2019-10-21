@@ -6,7 +6,7 @@ module parametros
 	character(100) :: kinenergyc, potgenergyc, rotenergyc, totenergyc, cratera
 	character(100) :: teste, forcasx, forcasy, forcas, dados_condini, condini, verlet_debug, simulation_time      !arquivos .dat
 	character(100) :: validation_friction
-	character(100) :: normalforces, posicoes_val, historia_atrito, cratera_evolucao
+	character(100) :: normalforces, posicoes_val, historia_atrito, cratera_evolucao, cratera_post, altura_maxima !arquivos .dat
 
 
 	!parâmetros de entrada 
@@ -71,12 +71,14 @@ module parametros
 	double precision :: aux_pack											!auxiliar para calcular packing fraction
 	integer, allocatable, dimension (:,:) :: cont_cell						!número de partículas em cada célula de Verlet
 	integer :: sum_cell														!
+	integer :: cont_all_cells
 	double precision, allocatable, dimension (:,:,:) :: sum_vcell 			!soma das velocidades das partículas para cada célula do sistema
 	double precision, allocatable, dimension (:,:) :: highest_of_cell   	!altura máxima entre as partículas para cada célula do sistema
 	double precision, allocatable, dimension (:,:,:) :: mean_velocity_cell  !velocidade média de cada célula
 	double precision, allocatable, dimension (:,:,:) :: position_cell 		!posição do vetor velocidade em cada célula 
 	double precision, allocatable, dimension (:,:) :: sum_packcell 			!soma das áreas das partículas de uma célula, para cada célula
 	double precision, allocatable, dimension (:,:) :: packing_fraction 		!packing fraction de cada célula
+	double precision :: packing_fraction_sys								!packing fraction do sistema
 	
 	!para cálculo das forças
 	double precision :: Fx_elastica, Fy_elastica  									!força normal elástica nas posições x e y
