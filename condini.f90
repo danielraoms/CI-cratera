@@ -163,8 +163,6 @@ call cpu_time(start)
 	allocate(dx_history_x(N,N), dx_history_y(N,N))
 	allocate(E_young(N), v_poisson(N), G_shear(N)) 
 
-	write(*,*) "AQUI", paredes+1, vxold(paredes+1), vyold(paredes+1) 
-
 	!inicializando número máximo de células de Verlet
 	maxIxcell = bw + 1
 	maxIycell = bw + 1

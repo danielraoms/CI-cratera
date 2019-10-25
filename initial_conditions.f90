@@ -167,8 +167,6 @@ subroutine condicoes_iniciais_position_moving()
 
 		u_lg1(k) = u_lg1(k) - floor(u_lg1(k))
 		u_lg2(k) = u_lg2(k) - floor(u_lg2(k))
-
-write(*,*) "k1", k, u_lg1(k), u_lg2(k)
 	end do
 
 	!renomenando as posições das partículas MÓVEIS (array bidimensional --> array unidimensional)
@@ -184,7 +182,6 @@ write(*,*) "k1", k, u_lg1(k), u_lg2(k)
 		omega_old(k) = 0.0d0
 		omega_new(k) = 0.0d0
 		r(k) = 0.75d0*raiomax + (0.1*raiomed)*u_lg1(k)*(-1)**(int(10*u_lg2(k)))
-		write(*,*) "r(k)", k, r(k)
 		k = k+1
 		end do
 	end do
