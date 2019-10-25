@@ -1,4 +1,5 @@
-﻿50		#bw --> número de partículas na BOTTOM WALL
+﻿
+50		#bw --> número de partículas na BOTTOM WALL
 10		#lw --> número de partículas na LEFT WALL, sem contar a bottom wall
 10		#rw --> número de partículas na RIGHT WALL, sem contar a bottom wall e a left wall
 1000		#contmod --> salva resultados a cada contmod passos

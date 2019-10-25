@@ -91,7 +91,7 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
   double precision :: max_force, max_vel, nx, ny
   double precision, dimension (N,3) :: rgb
   double precision, dimension (1:N) :: linewidth
-  real*8 :: scale = 200.0d0 !para raiomed = 0.1
+  real*8 :: scale = 800.0d0 !para raiomed = 0.1
 
   character (len = 20) :: filename1
 
@@ -123,7 +123,7 @@ subroutine salva_eps(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,part_pos_y
   write(210,93)
   write(210,94)
   write(210,95)
-  write(210,96) 0, 0, 3500, 2500
+  write(210,96) 0, 0, 3000, 2000
   write(210,97)
   write(210,98)
   write(210,99)
@@ -367,7 +367,7 @@ subroutine salva_eps_cratera(ttwrite,yplaca,parts,parede,part_raio,part_pos_x,pa
   write(210,93)
   write(210,94)
   write(210,95)
-  write(210,96) 0, 0, 2000, 1500
+  write(210,96) 0, 0, 3000, 2000
   write(210,97)
   write(210,98)
   write(210,99)

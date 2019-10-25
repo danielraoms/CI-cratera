@@ -79,17 +79,29 @@ call cpu_time(start)
 !*****PRÉ-EVOLUÇÃO DO SISTEMA (GERANDO A CONFIGURAÇÃO INICIAL)******************************************************************************************************************************
 
 	!puxa dados do arquivo de entrada para definir parâmetros de entrada da SIMULAÇÃO
-	read(1,*) bw			!número de partículas na BOTTOM WALL
-	read(1,*) lw			!número de partículas na LEFT WALL, sem contar a bottom wall
-	read(1,*) rw			!número de partículas na RIGHT WALL, sem contar a bottom wall e a left wall
-	read(1,*) contmod		!salva resultados a cada contmod passos
-	read(1,*) contmodeps	!salva arquivo .eps a cada contmodeps passos
-	read(1,*) contmodsafe	!salva energia a cada contmodsafe passos
-	read(1,*) dt			!passo de tempo
-	read(1,*) g 			!constante gravitacional
-	read(1,*) xinicial		!posição x do centro da partícula mais perto da origem (0,0)
-	read(1,*) yinicial		!posição y do centro da partícula mais perto da origem (0,0)
-	read(1,*) raiomed		!raio médio das partículas do SISTEMA
+!	read(1,*) bw			!número de partículas na BOTTOM WALL
+!	read(1,*) lw			!número de partículas na LEFT WALL, sem contar a bottom wall
+!	read(1,*) rw			!número de partículas na RIGHT WALL, sem contar a bottom wall e a left wall
+!	read(1,*) contmod		!salva resultados a cada contmod passos
+!	read(1,*) contmodeps	!salva arquivo .eps a cada contmodeps passos
+!	read(1,*) contmodsafe	!salva energia a cada contmodsafe passos
+!	read(1,*) dt			!passo de tempo
+!	read(1,*) g 			!constante gravitacional
+!	read(1,*) xinicial		!posição x do centro da partícula mais perto da origem (0,0)
+!	read(1,*) yinicial		!posição y do centro da partícula mais perto da origem (0,0)
+!	read(1,*) raiomed		!raio médio das partículas do SISTEMA
+
+	bw = 50
+	lw = 10
+	rw = 10
+	contmod = 1000
+	contmodeps = 1000
+	contmodsafe = 1000
+	dt = 0.00001
+	g = 9.806
+	xinicial = 0.5
+	yinicial = 0.5
+	raiomed = 0.025
 
 	write(*,*) "entrada", bw, lw, rw, contmod, contmodeps, contmodsafe, dt, g, xinicial, yinicial, raiomed
 	
@@ -201,6 +213,12 @@ call cpu_time(start)
 	detector_old(:,:) = 0
 	detector_new(:,:) = 0
 
+	!determinando o tempo máximo de simulação para gerar a CI
+	maxtime_ci = 75000
+
+	!determinando o tempo máximo de simulação para obter a cratera
+	maxtime_cratera = 200000
+
 
 !**********************************************************************************************************************************************************************************************
 !*****EVOLUÇÃO DO SISTEMA (GERANDO A CONDIÇÃO INICIAL)*****************************************************************************************************************************************
@@ -257,7 +275,7 @@ DO cont = 1, int(50/dt)
 			close(unit=102)		
 
 			!itere enquanto (kinetic .LT. toleranciastop)
-			if ((kinetic .LT. toleranciakin) .AND. (rotational_en .LT. toleranciarot) .AND. (cont .GT. 300000)) then
+			if  (cont .GT. maxtime_ci) then !((kinetic .LT. toleranciakin) .AND. (rotational_en .LT. toleranciarot) .AND. (cont .GT. 100000)) then
 			
 			write(*,*) "Equilíbrio:", t, kinetic, rotational_en
 			!call execute_command_line ("gfortran cratera.f90")
@@ -405,7 +423,7 @@ DO cont = 1, int(50/dt)
 	if (mod(cont,contmodeps) .eq. 0) then
 
 		!chama subroutine para gerar arquivo .eps com configuração do sistema 
-		!call salva_eps(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total)
+		call salva_eps(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total)
 
 		call energias()
 	end if
@@ -428,6 +446,9 @@ END DO
 
 	write(*,*) "N_restante", N, N_restante
 
+	!determinando percentual de partículas que foram cavadas com relação ao total de partículas na CI (para recalcular as tolerâncias de energia)
+	percent_digged = N_restante/N
+	
 	write(*,*) "Cratera cavada. Evoluindo..."
 	
 		massa_media = 0.0d0
@@ -443,7 +464,8 @@ END DO
 	forca_maxima = 0.0d0
 	
 	!abre arquivo para altura máxima da cratera ao longo da evolução 
-	write(altura_maxima,'("alturamax.dat")') contmodeps/cont
+	write(altura_maxima, "(a,i0,a)") "altura_max.dat"
+
 	open (unit = 212, file=trim(altura_maxima), status = "unknown")
 
 !loop do tempo
@@ -481,7 +503,8 @@ DO cont = floor(t/dt), 10000000
 			close(unit=105)
 
 			!itere enquanto (kinetic .LT. toleranciastop)
-			if ((kinetic .LT. toleranciakin/10.0d0) .AND. (rotational_en .LT. toleranciarot/10.0d0) .AND. (cont .GT. 3000000)) then
+			if ((kinetic .LT. toleranciakin*percent_digged) .AND. (rotational_en .LT. toleranciarot*percent_digged)&
+								        .AND. (cont .GT. maxtime_cratera)) then
 			
 			write(*,*) "Equilíbrio (cratera):", t, kinetic, rotational_en
 			!call execute_command_line ("gfortran cratera.f90")
@@ -723,7 +746,7 @@ DO cont = floor(t/dt), 10000000
 
 				!write(*,*) "teste y", a, b, sum_cell, mean_velocity_cell(2,a,b)
 	
-				!packig fraction 
+				!packing fraction 
 				!calculando packing fraction das partículas da célula
 				aux_pack = 9.0d0*((2.0d0*raiomed)**2.0d0) !a packig fraction em uma dada célula é a média das packing fractions das células adjacentes(8) e dela mesma(+1 = 9)
 				
@@ -756,7 +779,7 @@ DO cont = floor(t/dt), 10000000
 		!escrevendo dados da evolução da altura da coluna e packing_fraction do sistema
 		write(212,*) t, altura_maxima, packing_fraction_sys
 		
-		!escrevendo dados necessários para gerar imagens da evolução 		
+		!escrevendo dados necessários para gerar imagens da evolução 	
 		write(cratera_evolucao,'("crateraevolucao_", I4, ".dat")') contmodeps/cont
 		open (unit = 213, file=trim(cratera_evolucao), status = "unknown")
 		
@@ -773,6 +796,9 @@ DO cont = floor(t/dt), 10000000
 			write(214,*) mean_velocity_cell(1,a,b), mean_velocity_cell(2,a,b), packing_fraction(a,b)
 		end do
 		end do
+
+
+		call salva_eps_cratera(int(cont/contmodeps),ywall,N,paredes,r,xnew,ynew,0,theta_new,F_elastica,velocidade_total,flag_dig)
 	
 	end if
 	

@@ -37,6 +37,9 @@ module parametros
 	double precision :: gama_n, mi_t, gama_s, mi_roll, mi_roll_1, mi_roll_2 !coeficientes viscoso e de atrito dinâmico, coeficiente de regularização da força de atrito, coeficiente de rolling friction (modelo 1), coeficiente de rolling friction (modelo 2)
 	double precision :: sinal_tan
 	integer :: N_restante !número de partículas restante após cavar
+	integer :: maxtime_ci 		!número máximo de iterações para obter a CI
+	integer :: maxtime_cratera	!número máximo de iterações para gerar a cratera após geração da CI
+	double precision :: percent_digged !percentual de partículas cavadas para o total de partículas da CI, para recalcular a tolerância das energias
 
 	!lista de verlet
 	integer ::  maxIxcell, maxIycell	    											 !número máximo de células na lista de Verlet
@@ -70,7 +73,7 @@ module parametros
 	double precision :: totalenergy 										!energia total do sistema
 	double precision :: aux_pack											!auxiliar para calcular packing fraction
 	integer, allocatable, dimension (:,:) :: cont_cell						!número de partículas em cada célula de Verlet
-	integer :: sum_cell														!
+	integer :: sum_cell										
 	integer :: cont_all_cells
 	double precision, allocatable, dimension (:,:,:) :: sum_vcell 			!soma das velocidades das partículas para cada célula do sistema
 	double precision, allocatable, dimension (:,:,:) :: highest_of_cell   	!altura máxima entre as partículas para cada célula do sistema
